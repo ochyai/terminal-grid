@@ -3,6 +3,13 @@ import ApplicationServices
 
 final class WindowManager {
 
+    enum AppCategory: String {
+        case terminal  = "Terminal"
+        case browser   = "Browser"
+        case stickies  = "Stickies"
+        case all       = "All"
+    }
+
     // Known terminal bundle identifiers
     private let terminalBundleIDs: Set<String> = [
         "com.apple.Terminal",
@@ -14,21 +21,51 @@ final class WindowManager {
         "co.zeit.hyper",
         "com.mitchellh.ghostty",
         "io.tabby",
-        "com.brave.Browser.app.dyn.pkgjahdjefpbjcjggaooio",  // Brave terminal
+    ]
+
+    // Stickies
+    private let stickiesBundleIDs: Set<String> = [
+        "com.apple.Stickies",
+    ]
+
+    // Known browser bundle identifiers
+    private let browserBundleIDs: Set<String> = [
+        "com.google.Chrome",
+        "com.google.Chrome.canary",
+        "com.brave.Browser",
+        "com.microsoft.edgemac",
+        "com.vivaldi.Vivaldi",
+        "company.thebrowser.Browser",   // Arc
+        "org.mozilla.firefox",
+        "com.operasoftware.Opera",
+        "com.apple.Safari",
     ]
 
     // MARK: - Public
 
-    func countTerminalWindows() -> Int {
-        return collectTerminalWindows().count
+    func countWindows(category: AppCategory = .terminal) -> Int {
+        return collectWindows(category: category).count
+    }
+
+    /// Whether Accessibility API is available.
+    var isAccessibilityTrusted: Bool {
+        AXIsProcessTrusted()
     }
 
     /// Arrange all visible terminal windows into an optimal grid on the main screen.
     /// If `forcedColumns` is provided, use that column count instead of auto-calculating.
-    func arrangeInGrid(forcedColumns: Int? = nil) {
-        let windows = collectTerminalWindows()
-        guard !windows.isEmpty else { return }
-        guard let screen = NSScreen.main else { return }
+    /// Returns a status message describing the result.
+    @discardableResult
+    func arrangeInGrid(category: AppCategory = .terminal, forcedColumns: Int? = nil) -> String {
+        guard isAccessibilityTrusted else {
+            return "accessibility_denied"
+        }
+
+        let windows = collectWindows(category: category)
+        guard !windows.isEmpty else {
+            return "no_windows"
+        }
+        guard let screen = NSScreen.main else { return "no_screen" }
 
         let visibleFrame = screen.visibleFrame
         let screenFrame = screen.frame
@@ -68,16 +105,27 @@ final class WindowManager {
             AXUIElementSetAttributeValue(axWindow, kAXPositionAttribute as CFString, posValue)
             AXUIElementSetAttributeValue(axWindow, kAXSizeAttribute as CFString, sizeValue)
         }
+        return "ok:\(count)"
     }
 
     // MARK: - Private: Window Collection
 
-    private func collectTerminalWindows() -> [AXUIElement] {
+    private func bundleIDs(for category: AppCategory) -> Set<String> {
+        switch category {
+        case .terminal:  return terminalBundleIDs
+        case .browser:   return browserBundleIDs
+        case .stickies:  return stickiesBundleIDs
+        case .all:       return terminalBundleIDs.union(browserBundleIDs).union(stickiesBundleIDs)
+        }
+    }
+
+    private func collectWindows(category: AppCategory) -> [AXUIElement] {
+        let targetIDs = bundleIDs(for: category)
         var result: [AXUIElement] = []
 
         for app in NSWorkspace.shared.runningApplications {
             guard let bundleID = app.bundleIdentifier,
-                  terminalBundleIDs.contains(bundleID) else { continue }
+                  targetIDs.contains(bundleID) else { continue }
 
             let appElement = AXUIElementCreateApplication(app.processIdentifier)
             var windowsRef: CFTypeRef?

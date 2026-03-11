@@ -1,4 +1,5 @@
 APP_NAME    = TerminalGrid
+BUNDLE_ID   = com.ochyai.terminal-grid
 BUILD_DIR   = .build/release
 APP_BUNDLE  = $(APP_NAME).app
 
@@ -10,10 +11,14 @@ build:
 	@mkdir -p "$(APP_BUNDLE)/Contents/Resources"
 	@cp "$(BUILD_DIR)/$(APP_NAME)" "$(APP_BUNDLE)/Contents/MacOS/"
 	@cp Info.plist "$(APP_BUNDLE)/Contents/"
-	@echo "✓ Built $(APP_BUNDLE)"
+	@codesign --force --sign - "$(APP_BUNDLE)"
+	@echo "✓ Built & signed $(APP_BUNDLE)"
 
 run: build
+	@-pkill -f "$(APP_NAME)" 2>/dev/null; sleep 0.5
+	@tccutil reset Accessibility $(BUNDLE_ID) 2>/dev/null; true
 	@open "$(APP_BUNDLE)"
+	@echo "✓ Launched — grant Accessibility permission if prompted"
 
 install: build
 	@cp -R "$(APP_BUNDLE)" /Applications/
