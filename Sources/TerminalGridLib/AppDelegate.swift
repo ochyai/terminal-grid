@@ -1,13 +1,17 @@
 import AppKit
 
-final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
+public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private let windowManager = WindowManager()
     private var terminalCountItem: NSMenuItem!
     private var browserCountItem: NSMenuItem!
     private var stickiesCountItem: NSMenuItem!
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    public override init() {
+        super.init()
+    }
+
+    public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -90,7 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     // MARK: - NSMenuDelegate
 
-    func menuWillOpen(_ menu: NSMenu) {
+    public func menuWillOpen(_ menu: NSMenu) {
         let tc = windowManager.countWindows(category: .terminal)
         terminalCountItem.title = "  \(tc) window\(tc == 1 ? "" : "s")"
         let bc = windowManager.countWindows(category: .browser)

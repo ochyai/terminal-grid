@@ -1,4 +1,5 @@
 import AppKit
+import TerminalGridLib
 
 let app = NSApplication.shared
 let delegate = AppDelegate()

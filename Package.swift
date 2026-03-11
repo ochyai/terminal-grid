@@ -5,9 +5,19 @@ let package = Package(
     name: "TerminalGrid",
     platforms: [.macOS(.v13)],
     targets: [
+        .target(
+            name: "TerminalGridLib",
+            path: "Sources/TerminalGridLib"
+        ),
         .executableTarget(
             name: "TerminalGrid",
-            path: "Sources"
+            dependencies: ["TerminalGridLib"],
+            path: "Sources/TerminalGrid"
+        ),
+        .testTarget(
+            name: "TerminalGridTests",
+            dependencies: ["TerminalGridLib"],
+            path: "Tests/TerminalGridTests"
         )
     ]
 )

@@ -1,9 +1,9 @@
 import AppKit
 import ApplicationServices
 
-final class WindowManager {
+public final class WindowManager {
 
-    enum AppCategory: String {
+    public enum AppCategory: String, CaseIterable {
         case terminal  = "Terminal"
         case browser   = "Browser"
         case stickies  = "Stickies"
@@ -11,7 +11,7 @@ final class WindowManager {
     }
 
     // Known terminal bundle identifiers
-    private let terminalBundleIDs: Set<String> = [
+    public let terminalBundleIDs: Set<String> = [
         "com.apple.Terminal",
         "com.googlecode.iterm2",
         "org.alacritty",
@@ -24,12 +24,12 @@ final class WindowManager {
     ]
 
     // Stickies
-    private let stickiesBundleIDs: Set<String> = [
+    public let stickiesBundleIDs: Set<String> = [
         "com.apple.Stickies",
     ]
 
     // Known browser bundle identifiers
-    private let browserBundleIDs: Set<String> = [
+    public let browserBundleIDs: Set<String> = [
         "com.google.Chrome",
         "com.google.Chrome.canary",
         "com.brave.Browser",
@@ -41,14 +41,16 @@ final class WindowManager {
         "com.apple.Safari",
     ]
 
+    public init() {}
+
     // MARK: - Public
 
-    func countWindows(category: AppCategory = .terminal) -> Int {
+    public func countWindows(category: AppCategory = .terminal) -> Int {
         return collectWindows(category: category).count
     }
 
     /// Whether Accessibility API is available.
-    var isAccessibilityTrusted: Bool {
+    public var isAccessibilityTrusted: Bool {
         AXIsProcessTrusted()
     }
 
@@ -56,7 +58,7 @@ final class WindowManager {
     /// If `forcedColumns` is provided, use that column count instead of auto-calculating.
     /// Returns a status message describing the result.
     @discardableResult
-    func arrangeInGrid(category: AppCategory = .terminal, forcedColumns: Int? = nil) -> String {
+    public func arrangeInGrid(category: AppCategory = .terminal, forcedColumns: Int? = nil) -> String {
         guard isAccessibilityTrusted else {
             return "accessibility_denied"
         }
@@ -108,9 +110,9 @@ final class WindowManager {
         return "ok:\(count)"
     }
 
-    // MARK: - Private: Window Collection
+    // MARK: - Bundle ID Lookup
 
-    private func bundleIDs(for category: AppCategory) -> Set<String> {
+    public func bundleIDs(for category: AppCategory) -> Set<String> {
         switch category {
         case .terminal:  return terminalBundleIDs
         case .browser:   return browserBundleIDs
@@ -187,11 +189,11 @@ final class WindowManager {
         return (ref as? Bool) ?? false
     }
 
-    // MARK: - Private: Grid Calculation
+    // MARK: - Grid Calculation
 
     /// Calculate optimal (cols, rows) for `count` windows.
     /// Prefers wider layouts to match typical screen aspect ratios.
-    private func gridSize(for count: Int) -> (cols: Int, rows: Int) {
+    public func gridSize(for count: Int) -> (cols: Int, rows: Int) {
         guard count > 1 else { return (1, 1) }
 
         let cols = Int(ceil(sqrt(Double(count))))
