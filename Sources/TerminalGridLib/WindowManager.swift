@@ -7,8 +7,11 @@ public final class WindowManager {
         case terminal  = "Terminal"
         case browser   = "Browser"
         case stickies  = "Stickies"
+        case custom    = "Custom"
         case all       = "All"
     }
+
+    private static let customBundleIDsKey = "CustomBundleIDs"
 
     // Known terminal bundle identifiers
     public let terminalBundleIDs: Set<String> = [
@@ -42,6 +45,60 @@ public final class WindowManager {
     ]
 
     public init() {}
+
+    // MARK: - Custom Apps
+
+    public var customBundleIDs: Set<String> {
+        get {
+            Set(UserDefaults.standard.stringArray(forKey: Self.customBundleIDsKey) ?? [])
+        }
+        set {
+            UserDefaults.standard.set(Array(newValue).sorted(), forKey: Self.customBundleIDsKey)
+        }
+    }
+
+    public func addCustomApp(bundleID: String) {
+        var ids = customBundleIDs
+        ids.insert(bundleID)
+        customBundleIDs = ids
+    }
+
+    public func removeCustomApp(bundleID: String) {
+        var ids = customBundleIDs
+        ids.remove(bundleID)
+        customBundleIDs = ids
+    }
+
+    /// All bundle IDs that are already in a built-in category.
+    public var builtinBundleIDs: Set<String> {
+        terminalBundleIDs.union(browserBundleIDs).union(stickiesBundleIDs)
+    }
+
+    /// Running apps that are not in any built-in or custom category (candidates to add).
+    public func addableRunningApps() -> [(name: String, bundleID: String)] {
+        let allKnown = builtinBundleIDs.union(customBundleIDs)
+        var result: [(name: String, bundleID: String)] = []
+        for app in NSWorkspace.shared.runningApplications {
+            guard app.activationPolicy == .regular,
+                  let bid = app.bundleIdentifier,
+                  !allKnown.contains(bid) else { continue }
+            let name = app.localizedName ?? bid
+            result.append((name: name, bundleID: bid))
+        }
+        result.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        return result
+    }
+
+    /// Display name for a bundle ID (from running app or bundle on disk).
+    public func appName(for bundleID: String) -> String {
+        if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleID }) {
+            return app.localizedName ?? bundleID
+        }
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+            return FileManager.default.displayName(atPath: url.path)
+        }
+        return bundleID
+    }
 
     // MARK: - Public
 
@@ -117,11 +174,17 @@ public final class WindowManager {
         case .terminal:  return terminalBundleIDs
         case .browser:   return browserBundleIDs
         case .stickies:  return stickiesBundleIDs
-        case .all:       return terminalBundleIDs.union(browserBundleIDs).union(stickiesBundleIDs)
+        case .custom:    return customBundleIDs
+        case .all:       return terminalBundleIDs.union(browserBundleIDs).union(stickiesBundleIDs).union(customBundleIDs)
         }
     }
 
     private func collectWindows(category: AppCategory) -> [AXUIElement] {
+        guard isAccessibilityTrusted else {
+            NSLog("[TerminalGrid] collectWindows: Accessibility not trusted — returning empty")
+            return []
+        }
+
         let targetIDs = bundleIDs(for: category)
         var result: [AXUIElement] = []
 
@@ -132,12 +195,19 @@ public final class WindowManager {
             let appElement = AXUIElementCreateApplication(app.processIdentifier)
             var windowsRef: CFTypeRef?
 
-            guard AXUIElementCopyAttributeValue(
+            let axError = AXUIElementCopyAttributeValue(
                 appElement,
                 kAXWindowsAttribute as CFString,
                 &windowsRef
-            ) == .success,
-            let axWindows = windowsRef as? [AXUIElement] else { continue }
+            )
+
+            guard axError == .success,
+                  let axWindows = windowsRef as? [AXUIElement] else {
+                NSLog("[TerminalGrid] collectWindows: AXError=%{public}d for %{public}@ (pid=%d)", axError.rawValue, bundleID, app.processIdentifier)
+                continue
+            }
+
+            NSLog("[TerminalGrid] collectWindows: %{public}@ has %d AX windows", bundleID, axWindows.count)
 
             for axWindow in axWindows {
                 // Skip minimized windows

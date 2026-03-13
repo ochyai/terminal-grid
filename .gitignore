@@ -1,4 +1,5 @@
+.build_hash
 .build/
-*.app
 .DS_Store
 .swiftpm/
+*.app

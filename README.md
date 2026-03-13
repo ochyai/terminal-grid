@@ -4,7 +4,7 @@
 
 ## :jp: 日本語
 
-ターミナル、ブラウザ、スティッキーズのウィンドウをグリッド状に自動整列するmacOSメニューバーアプリ。
+ターミナル、ブラウザ、スティッキーズ、そして**任意のアプリ**のウィンドウをグリッド状に自動整列するmacOSメニューバーアプリ。
 
 <!-- スクリーンショット: メニューバーアイコンとグリッド整列後の画面 -->
 
@@ -12,9 +12,11 @@
 
 - メニューバーからワンクリックでウィンドウをグリッド配置
 - ターミナル / ブラウザ / スティッキーズを個別または一括で整列
+- **カスタムアプリの追加**: 起動中のアプリやApplicationsフォルダから任意のアプリを登録可能
 - ウィンドウ数に応じた最適なグリッドサイズを自動計算
 - 最小化されたウィンドウやポップアップは自動でスキップ
 - 現在のウィンドウ数をメニューにリアルタイム表示
+- 登録したカスタムアプリは再起動後も保持
 
 ### 対応アプリ
 
@@ -22,13 +24,13 @@
 
 **ブラウザ:** Chrome, Safari, Arc, Brave, Firefox, Edge, Opera, Vivaldi
 
-**その他:** Stickies
+**その他:** Stickies + ユーザーが追加した任意のアプリ
 
 ### インストール
 
 #### GitHub Releasesからダウンロード
 
-[TerminalGrid-v1.0.0.zip](https://github.com/ochyai/terminal-grid/releases/download/v1.0.0/TerminalGrid-v1.0.0.zip) をダウンロードして展開し、`TerminalGrid.app` を `/Applications` に移動してください。
+[Releases](https://github.com/ochyai/terminal-grid/releases) から最新版をダウンロードして展開し、`TerminalGrid.app` を `/Applications` に移動してください。
 
 #### ソースからビルド
 
@@ -45,7 +47,14 @@ make run
 
 1. アプリを起動するとメニューバーにグリッドアイコンが表示されます
 2. アイコンをクリックしてメニューを開きます
-3. 「Arrange Terminals in Grid」「Arrange Browsers in Grid」「Arrange Stickies in Grid」または「Arrange ALL in Grid」を選択します
+3. 各カテゴリの「Arrange ... in Grid」を選んでウィンドウを整列
+
+#### カスタムアプリの追加
+
+1. メニューの **CUSTOM APPS** セクションにある「Add Running App...」を開く
+2. 現在起動中のアプリ一覧からグリッド整列したいアプリを選択
+3. または「Add from Applications...」で `/Applications` から `.app` ファイルを選択
+4. 登録済みアプリは「Registered Apps」サブメニューに表示され、クリックで削除可能
 
 ### 動作要件
 
@@ -64,7 +73,7 @@ MIT
 
 ## :us: English
 
-A macOS menu bar app that arranges terminal, browser, and stickies windows in a grid layout.
+A macOS menu bar app that arranges terminal, browser, stickies, and **any custom app** windows in a grid layout.
 
 <!-- Screenshot: menu bar icon and windows arranged in grid -->
 
@@ -72,9 +81,11 @@ A macOS menu bar app that arranges terminal, browser, and stickies windows in a 
 
 - One-click window grid arrangement from the menu bar
 - Arrange terminals, browsers, and stickies separately or all at once
+- **Custom app support**: add any running app or pick from the Applications folder
 - Automatically calculates optimal grid size based on window count
 - Skips minimized windows and small popups
 - Shows live window count in the menu
+- Custom app registrations persist across restarts
 
 ### Supported Apps
 
@@ -82,13 +93,13 @@ A macOS menu bar app that arranges terminal, browser, and stickies windows in a 
 
 **Browsers:** Chrome, Safari, Arc, Brave, Firefox, Edge, Opera, Vivaldi
 
-**Other:** Stickies
+**Other:** Stickies + any user-added apps
 
 ### Install
 
 #### Download from GitHub Releases
 
-Download [TerminalGrid-v1.0.0.zip](https://github.com/ochyai/terminal-grid/releases/download/v1.0.0/TerminalGrid-v1.0.0.zip), extract it, and move `TerminalGrid.app` to `/Applications`.
+Download the latest release from [Releases](https://github.com/ochyai/terminal-grid/releases), extract it, and move `TerminalGrid.app` to `/Applications`.
 
 #### Build from source
 
@@ -105,7 +116,14 @@ Run `make install` to copy the app to `/Applications`.
 
 1. Launch the app and a grid icon appears in the menu bar
 2. Click the icon to open the menu
-3. Select "Arrange Terminals in Grid", "Arrange Browsers in Grid", "Arrange Stickies in Grid", or "Arrange ALL in Grid"
+3. Select "Arrange ... in Grid" for any category
+
+#### Adding Custom Apps
+
+1. Open "Add Running App..." under the **CUSTOM APPS** section in the menu
+2. Pick any currently running app from the list
+3. Or use "Add from Applications..." to choose a `.app` from `/Applications`
+4. Registered apps appear in "Registered Apps" submenu — click to remove
 
 ### Requirements
 
@@ -124,7 +142,7 @@ MIT
 
 ## :cn: 中文
 
-一款 macOS 菜单栏应用，可将终端、浏览器和便签窗口自动排列为网格布局。
+一款 macOS 菜单栏应用，可将终端、浏览器、便签及**任意自定义应用**的窗口自动排列为网格布局。
 
 <!-- 截图：菜单栏图标与网格排列后的窗口 -->
 
@@ -132,9 +150,11 @@ MIT
 
 - 在菜单栏一键将窗口排列为网格
 - 可分别或统一排列终端、浏览器和便签窗口
+- **自定义应用支持**：可从正在运行的应用或 Applications 文件夹添加任意应用
 - 根据窗口数量自动计算最佳网格尺寸
 - 自动跳过最小化窗口和小型弹出窗口
 - 在菜单中实时显示当前窗口数量
+- 自定义应用注册在重启后保持
 
 ### 支持的应用
 
@@ -142,13 +162,13 @@ MIT
 
 **浏览器：** Chrome、Safari、Arc、Brave、Firefox、Edge、Opera、Vivaldi
 
-**其他：** Stickies（便签）
+**其他：** Stickies（便签）+ 用户添加的任意应用
 
 ### 安装
 
 #### 从 GitHub Releases 下载
 
-下载 [TerminalGrid-v1.0.0.zip](https://github.com/ochyai/terminal-grid/releases/download/v1.0.0/TerminalGrid-v1.0.0.zip)，解压后将 `TerminalGrid.app` 移动到 `/Applications`。
+从 [Releases](https://github.com/ochyai/terminal-grid/releases) 下载最新版本，解压后将 `TerminalGrid.app` 移动到 `/Applications`。
 
 #### 从源码构建
 
@@ -165,7 +185,14 @@ make run
 
 1. 启动应用后，菜单栏会出现网格图标
 2. 点击图标打开菜单
-3. 选择「Arrange Terminals in Grid」「Arrange Browsers in Grid」「Arrange Stickies in Grid」或「Arrange ALL in Grid」
+3. 选择各类别的「Arrange ... in Grid」排列窗口
+
+#### 添加自定义应用
+
+1. 打开菜单中 **CUSTOM APPS** 下的「Add Running App...」
+2. 从正在运行的应用列表中选择
+3. 或使用「Add from Applications...」从 `/Applications` 选择 `.app` 文件
+4. 已注册应用显示在「Registered Apps」子菜单中，点击可删除
 
 ### 系统要求
 
