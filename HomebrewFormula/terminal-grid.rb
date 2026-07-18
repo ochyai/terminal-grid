@@ -1,6 +1,6 @@
 cask "terminal-grid" do
-  version "1.0.0"
-  sha256 "0115edbb3423d4ca09ac951ca7fb4b8d1b18e304ac1652916d9538e1663a1639"
+  version "1.2.0"
+  sha256 "6a3dbeb728a9e6547cd7f002dbde5c33f852b0a1b79e67c13ac8d9bdf92606e3"
 
   url "https://github.com/ochyai/terminal-grid/releases/download/v#{version}/TerminalGrid-v#{version}.zip"
   name "TerminalGrid"
