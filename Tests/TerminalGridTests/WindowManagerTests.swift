@@ -220,12 +220,13 @@ final class AppCategoryTests: XCTestCase {
     }
 
     func testCategoryIsCaseIterable() {
-        // Verify CaseIterable conformance covers all 4 cases
+        // Verify CaseIterable conformance covers all 5 cases
         let allCases = WindowManager.AppCategory.allCases
-        XCTAssertEqual(allCases.count, 4)
+        XCTAssertEqual(allCases.count, 5)
         XCTAssertTrue(allCases.contains(.terminal))
         XCTAssertTrue(allCases.contains(.browser))
         XCTAssertTrue(allCases.contains(.stickies))
+        XCTAssertTrue(allCases.contains(.custom))
         XCTAssertTrue(allCases.contains(.all))
     }
 }
@@ -416,5 +417,37 @@ final class BundleIDTests: XCTestCase {
 
     func testBrowserBundleIDs_doesNotContainTerminal() {
         XCTAssertFalse(wm.browserBundleIDs.contains("com.apple.Terminal"))
+    }
+}
+
+// MARK: - Window Cycling Tests
+
+final class CycleIndexTests: XCTestCase {
+    let wm = WindowManager()
+
+    func testNextIndex_forward_steps() {
+        XCTAssertEqual(wm.nextIndex(after: 0, count: 3, forward: true), 1)
+        XCTAssertEqual(wm.nextIndex(after: 1, count: 3, forward: true), 2)
+    }
+
+    func testNextIndex_forward_wrapsAround() {
+        XCTAssertEqual(wm.nextIndex(after: 2, count: 3, forward: true), 0)
+    }
+
+    func testNextIndex_backward_steps() {
+        XCTAssertEqual(wm.nextIndex(after: 2, count: 3, forward: false), 1)
+    }
+
+    func testNextIndex_backward_wrapsAround() {
+        XCTAssertEqual(wm.nextIndex(after: 0, count: 3, forward: false), 2)
+    }
+
+    func testNextIndex_singleWindow_staysPut() {
+        XCTAssertEqual(wm.nextIndex(after: 0, count: 1, forward: true), 0)
+        XCTAssertEqual(wm.nextIndex(after: 0, count: 1, forward: false), 0)
+    }
+
+    func testNextIndex_zeroCount_returnsZero() {
+        XCTAssertEqual(wm.nextIndex(after: 0, count: 0, forward: true), 0)
     }
 }

@@ -19,11 +19,13 @@ build:
 	if [ "$$NEW_HASH" != "$$OLD_HASH" ]; then \
 		cp "$(BUILD_DIR)/$(APP_NAME)" "$(APP_BUNDLE)/Contents/MacOS/"; \
 		cp Info.plist "$(APP_BUNDLE)/Contents/"; \
+		cp -R Resources/ "$(APP_BUNDLE)/Contents/Resources/"; \
 		codesign --force --sign - "$(APP_BUNDLE)"; \
 		echo "$$NEW_HASH" > .build_hash; \
 		echo "✓ Built & signed $(APP_BUNDLE) (re-grant Accessibility if needed)"; \
 	else \
 		cp Info.plist "$(APP_BUNDLE)/Contents/"; \
+		cp -R Resources/ "$(APP_BUNDLE)/Contents/Resources/"; \
 		echo "✓ Built (binary unchanged, signature preserved)"; \
 	fi
 

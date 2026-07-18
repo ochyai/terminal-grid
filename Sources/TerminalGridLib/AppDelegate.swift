@@ -1,8 +1,10 @@
 import AppKit
+import Carbon.HIToolbox
 
 public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private let windowManager = WindowManager()
+    private let hotKeys = HotKeyManager()
     private var terminalCountItem: NSMenuItem!
     private var browserCountItem: NSMenuItem!
     private var stickiesCountItem: NSMenuItem!
@@ -15,7 +17,8 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
     }
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
+        // .regular so the app shows up in ⌘Tab and the Dock.
+        NSApp.setActivationPolicy(.regular)
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
@@ -27,7 +30,33 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
         }
 
         setupMenu()
+        setupHotKeys()
         checkAccessibility()
+    }
+
+    // MARK: - Global HotKeys
+
+    private func setupHotKeys() {
+        // ⌃⌥⌘G — arrange all terminals in a grid
+        hotKeys.register(.controlOptionCommand(keyCode: UInt32(kVK_ANSI_G))) { [weak self] in
+            guard let self else { return }
+            self.handleResult(self.windowManager.arrangeInGrid(category: .terminal))
+        }
+        // ⌃⌥⌘M — maximize all terminals and stack them layered
+        hotKeys.register(.controlOptionCommand(keyCode: UInt32(kVK_ANSI_M))) { [weak self] in
+            guard let self else { return }
+            self.handleResult(self.windowManager.stackMaximized(category: .terminal))
+        }
+        // ⌃⌥⌘→ — focus next terminal window (across apps, wraps around)
+        hotKeys.register(.controlOptionCommand(keyCode: UInt32(kVK_RightArrow))) { [weak self] in
+            guard let self else { return }
+            self.handleResult(self.windowManager.cycleWindow(category: .terminal, forward: true))
+        }
+        // ⌃⌥⌘← — focus previous terminal window
+        hotKeys.register(.controlOptionCommand(keyCode: UInt32(kVK_LeftArrow))) { [weak self] in
+            guard let self else { return }
+            self.handleResult(self.windowManager.cycleWindow(category: .terminal, forward: false))
+        }
     }
 
     // MARK: - Menu Setup
@@ -41,9 +70,25 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
         terminalHeader.isEnabled = false
         menu.addItem(terminalHeader)
 
-        let arrangeTerminals = NSMenuItem(title: "Arrange Terminals in Grid", action: #selector(arrangeTerminalGrid), keyEquivalent: "")
+        let arrangeTerminals = NSMenuItem(title: "Arrange Terminals in Grid", action: #selector(arrangeTerminalGrid), keyEquivalent: "g")
+        arrangeTerminals.keyEquivalentModifierMask = [.control, .option, .command]
         arrangeTerminals.target = self
         menu.addItem(arrangeTerminals)
+
+        let stackTerminals = NSMenuItem(title: "Maximize & Stack Terminals", action: #selector(stackTerminalsMaximized), keyEquivalent: "m")
+        stackTerminals.keyEquivalentModifierMask = [.control, .option, .command]
+        stackTerminals.target = self
+        menu.addItem(stackTerminals)
+
+        let nextTerminal = NSMenuItem(title: "Next Terminal", action: #selector(cycleTerminalNext), keyEquivalent: "\u{F703}")
+        nextTerminal.keyEquivalentModifierMask = [.control, .option, .command]
+        nextTerminal.target = self
+        menu.addItem(nextTerminal)
+
+        let prevTerminal = NSMenuItem(title: "Previous Terminal", action: #selector(cycleTerminalPrev), keyEquivalent: "\u{F702}")
+        prevTerminal.keyEquivalentModifierMask = [.control, .option, .command]
+        prevTerminal.target = self
+        menu.addItem(prevTerminal)
 
         terminalCountItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         terminalCountItem.isEnabled = false
@@ -184,6 +229,18 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
 
     @objc private func arrangeTerminalGrid() {
         handleResult(windowManager.arrangeInGrid(category: .terminal))
+    }
+
+    @objc private func stackTerminalsMaximized() {
+        handleResult(windowManager.stackMaximized(category: .terminal))
+    }
+
+    @objc private func cycleTerminalNext() {
+        handleResult(windowManager.cycleWindow(category: .terminal, forward: true))
+    }
+
+    @objc private func cycleTerminalPrev() {
+        handleResult(windowManager.cycleWindow(category: .terminal, forward: false))
     }
 
     @objc private func arrangeBrowserGrid() {
