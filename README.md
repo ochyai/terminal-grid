@@ -1,5 +1,14 @@
 # TerminalGrid
 
+<!-- about -->
+> **このリポは何か**：macOSのメニューバーから、ターミナルやブラウザ、登録したアプリのウィンドウを格子状に並べる。
+>
+> **What this is**: This macOS menu bar app arranges windows from terminals, browsers, and other apps you select into a grid.
+>
+> **まず開く / Start here**：`TerminalGrid-v1.2.0.dmg`
+<!-- /about -->
+
+
 ---
 
 ## :jp: 日本語
